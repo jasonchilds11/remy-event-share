@@ -268,9 +268,11 @@
         // Parse URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         let base64Data = urlParams.get('data');
-        globalBase64Data = base64Data;
         
-        console.log('URL:', window.location.href);
+        console.log('Full URL:', window.location.href);
+        console.log('Query string:', window.location.search);
+        console.log('All params:', Array.from(urlParams.entries()));
+        console.log('Base64 data:', base64Data ? base64Data.substring(0, 50) + '...' : 'null');
         console.log('Base64 data length:', base64Data ? base64Data.length : 0);
         
         if (!base64Data) {
@@ -278,17 +280,22 @@
             document.getElementById('openButton').style.display = 'none';
             document.querySelector('.remy-label').style.display = 'none';
             console.error('No data parameter found in URL');
+            console.error('Available params:', Array.from(urlParams.keys()));
             return;
         }
         
-        // URL decode the data (in case it was URL-encoded)
-        try {
-            base64Data = decodeURIComponent(base64Data);
-            globalBase64Data = base64Data; // Update global for button handler
-        } catch (e) {
-            // If decodeURIComponent fails, the data might not be URL-encoded
-            console.log('Data not URL-encoded, using as-is');
+        // URLSearchParams.get() already decodes the parameter, but base64 might have been double-encoded
+        // Try decoding again if it looks URL-encoded (contains %)
+        if (base64Data.includes('%')) {
+            try {
+                base64Data = decodeURIComponent(base64Data);
+                console.log('URL-decoded base64 data');
+            } catch (e) {
+                console.log('Failed to URL-decode, using as-is');
+            }
         }
+        
+        globalBase64Data = base64Data; // Store for button handler
         
         // Decode base64 data
         let eventData;
