@@ -255,41 +255,82 @@
     </div>
     
     <script>
+        // Store data in outer scope for button handler
+        let globalBase64Data = null;
+        let globalEventData = null;
+        
+        // Run script when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventPage();
+        });
+        
+        function initializeEventPage() {
         // Parse URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const base64Data = urlParams.get('data');
+        let base64Data = urlParams.get('data');
+        globalBase64Data = base64Data;
+        
+        console.log('URL:', window.location.href);
+        console.log('Base64 data length:', base64Data ? base64Data.length : 0);
         
         if (!base64Data) {
-            document.getElementById('eventTitle').textContent = 'Invalid event link';
+            document.getElementById('eventTitle').textContent = 'Invalid event link - no data parameter';
             document.getElementById('openButton').style.display = 'none';
             document.querySelector('.remy-label').style.display = 'none';
+            console.error('No data parameter found in URL');
             return;
+        }
+        
+        // URL decode the data (in case it was URL-encoded)
+        try {
+            base64Data = decodeURIComponent(base64Data);
+            globalBase64Data = base64Data; // Update global for button handler
+        } catch (e) {
+            // If decodeURIComponent fails, the data might not be URL-encoded
+            console.log('Data not URL-encoded, using as-is');
         }
         
         // Decode base64 data
         let eventData;
         try {
             const jsonString = atob(base64Data);
+            console.log('Decoded JSON string length:', jsonString.length);
             eventData = JSON.parse(jsonString);
+            globalEventData = eventData;
+            console.log('Event data loaded successfully:', eventData);
         } catch (error) {
-            document.getElementById('eventTitle').textContent = 'Error loading event data';
+            console.error('Error decoding event data:', error);
+            console.error('Base64 data (first 100 chars):', base64Data ? base64Data.substring(0, 100) : 'null');
+            document.getElementById('eventTitle').textContent = 'Error loading event data: ' + error.message;
             document.getElementById('openButton').style.display = 'none';
             return;
         }
         
         // Display event data
         function displayEvent() {
-            // Title
-            document.getElementById('eventTitle').textContent = eventData.title || 'Untitled Event';
-            
-            // Date
-            const eventDate = new Date(eventData.date);
-            const dateFormatter = new Intl.DateTimeFormat('en-US', {
-                month: 'medium',
-                day: 'numeric',
-                year: 'numeric'
-            });
-            document.getElementById('eventDate').textContent = dateFormatter.format(eventDate);
+            try {
+                // Title
+                document.getElementById('eventTitle').textContent = eventData.title || 'Untitled Event';
+                
+                // Date
+                let eventDate;
+                if (eventData.date) {
+                    // Handle ISO8601 date string
+                    eventDate = new Date(eventData.date);
+                    if (isNaN(eventDate.getTime())) {
+                        console.error('Invalid date:', eventData.date);
+                        document.getElementById('eventDate').textContent = 'Invalid date';
+                    } else {
+                        const dateFormatter = new Intl.DateTimeFormat('en-US', {
+                            month: 'medium',
+                            day: 'numeric',
+                            year: 'numeric'
+                        });
+                        document.getElementById('eventDate').textContent = dateFormatter.format(eventDate);
+                    }
+                } else {
+                    document.getElementById('eventDate').textContent = 'No date';
+                }
             
             // Notes
             if (eventData.notes) {
@@ -363,11 +404,24 @@
                 document.body.classList.add('event-type-' + eventData.type);
             }
             
-            // Update Open Graph meta tags
-            document.getElementById('og-title').content = eventData.title + ' - Event from Remy';
-            document.getElementById('og-description').content = dateFormatter.format(eventDate);
-            if (eventData.heroImageData) {
-                // Set OG image if available
+                // Update Open Graph meta tags
+                if (eventData.title) {
+                    document.getElementById('og-title').content = eventData.title + ' - Event from Remy';
+                }
+                if (eventDate && !isNaN(eventDate.getTime())) {
+                    const dateFormatter = new Intl.DateTimeFormat('en-US', {
+                        month: 'medium',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+                    document.getElementById('og-description').content = dateFormatter.format(eventDate);
+                }
+                if (eventData.heroImageData) {
+                    // Set OG image if available
+                }
+            } catch (error) {
+                console.error('Error displaying event:', error);
+                document.getElementById('eventTitle').textContent = 'Error displaying event: ' + error.message;
             }
         }
         
@@ -392,8 +446,15 @@
         document.getElementById('openButton').addEventListener('click', function(e) {
             e.preventDefault();
             
+            if (!globalBase64Data) {
+                console.error('No base64 data available for remy:// URL');
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
+            
             // Construct remy:// URL with the same data
-            const remyURL = 'remy://import-event?data=' + encodeURIComponent(base64Data);
+            const remyURL = 'remy://import-event?data=' + encodeURIComponent(globalBase64Data);
+            console.log('Opening Remy with URL:', remyURL.substring(0, 50) + '...');
             
             // Try to open the app
             window.location.href = remyURL;
@@ -405,7 +466,21 @@
         });
         
         // Display the event
-        displayEvent();
+        if (eventData) {
+            displayEvent();
+        } else {
+            document.getElementById('eventTitle').textContent = 'Failed to load event data';
+            console.error('eventData is undefined');
+        }
+        }
+        
+        // Also try to run immediately (in case DOMContentLoaded already fired)
+        if (document.readyState === 'loading') {
+            // DOM hasn't finished loading, wait for DOMContentLoaded
+        } else {
+            // DOM is already loaded, run immediately
+            initializeEventPage();
+        }
     </script>
 </body>
 </html>
