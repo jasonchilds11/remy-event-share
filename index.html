@@ -3,111 +3,410 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remy Event</title>
+    <title>Event from Remy</title>
+    
+    <!-- Open Graph / Facebook / Twitter meta tags for rich previews -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" id="og-title" content="Event from Remy">
+    <meta property="og:description" id="og-description" content="Check out this event">
+    <meta property="og:image" id="og-image" content="">
+    
     <style>
-        body {
+        * {
             margin: 0;
-            padding: 20px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
-        #event-card {
-            background: white;
+        
+        .card-container {
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .event-card {
+            background: #ffffff;
             border-radius: 12px;
-            padding: 40px 30px;
-            text-align: center;
-            max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            border: 0.5px solid rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
         }
-        #emoji {
-            font-size: 80px;
-            margin-bottom: 20px;
+        
+        .card-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
         }
-        h1 {
-            margin: 0 0 10px 0;
-            font-size: 24px;
-            color: #333;
+        
+        .hero-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+            z-index: 0;
         }
-        p {
-            margin: 0;
-            color: #666;
-            font-size: 16px;
+        
+        .emoji-background {
+            position: absolute;
+            right: -50px;
+            top: 50%;
+            transform: translateY(-50%) rotate(18deg);
+            font-size: 60px;
+            opacity: 0.6;
+            z-index: 0;
+            pointer-events: none;
         }
-        .subtitle {
-            opacity: 0.7;
-            margin-top: 15px;
+        
+        .card-content {
+            position: relative;
+            z-index: 1;
         }
-        .source {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #999;
+        
+        .event-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
         }
-        a {
-            display: inline-block;
-            margin-top: 25px;
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-decoration: none;
+        
+        .event-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000000;
+            line-height: 1.3;
+            margin-bottom: 4px;
+            flex: 1;
+        }
+        
+        .event-emoji-large {
+            font-size: 60px;
+            opacity: 0.6;
+            margin-left: 16px;
+        }
+        
+        .event-details {
+            margin-top: 8px;
+        }
+        
+        .event-date {
+            font-size: 13px;
+            color: #8e8e93;
+            margin-bottom: 4px;
+        }
+        
+        .event-notes {
+            font-size: 13px;
+            color: #8e8e93;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        
+        .event-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        
+        .tag-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 6px;
+            background: rgba(0, 0, 0, 0.05);
             border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
+            font-size: 11px;
+            color: #000000;
         }
-        a:hover {
-            opacity: 0.9;
+        
+        .tag-emoji {
+            font-size: 12px;
         }
-        #error {
-            color: red;
-            margin-top: 20px;
+        
+        .remy-label {
+            text-align: center;
+            margin-top: 16px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            color: #8e8e93;
+            font-weight: 500;
+        }
+        
+        .open-button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #007AFF;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 600;
+            transition: background 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 122, 255, 0.3);
+        }
+        
+        .open-button:hover {
+            background: #0056CC;
+        }
+        
+        .open-button:active {
+            background: #004299;
+        }
+        
+        .error-message {
+            text-align: center;
+            color: #ff3b30;
+            font-size: 14px;
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(255, 59, 48, 0.1);
+            border-radius: 8px;
+            display: none;
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+            }
+            
+            .event-card {
+                background: #1c1c1e;
+                border-color: rgba(255, 255, 255, 0.1);
+            }
+            
+            .event-title {
+                color: #ffffff;
+            }
+            
+            .event-date,
+            .event-notes {
+                color: rgba(255, 255, 255, 0.8);
+            }
+            
+            .tag-chip {
+                background: rgba(255, 255, 255, 0.1);
+                color: #ffffff;
+            }
+            
+            .remy-label {
+                color: rgba(255, 255, 255, 0.6);
+            }
+        }
+        
+        /* Type-specific styling */
+        .event-type-birthday .event-card {
+            /* Birthday styling - could add special effects */
+        }
+        
+        .event-type-annualEvent .event-card {
+            /* Annual event styling */
         }
     </style>
 </head>
 <body>
-
-<div id="event-card">
-    <div id="emoji"></div>
-    <h1 id="title"></h1>
-    <p id="date"></p>
-    <p class="source">Event from Remy</p>
-    <a id="open-remy">Open in Remy</a>
-    <p id="error"></p>
-</div>
-
-<script>
-    const params = new URLSearchParams(window.location.search);
-    const encodedData = params.get('data');
+    <div class="card-container">
+        <div class="event-card" id="eventCard">
+            <div class="card-background">
+                <img id="heroImage" class="hero-image" alt="" style="display: none;">
+                <div id="emojiBackground" class="emoji-background"></div>
+            </div>
+            
+            <div class="card-content">
+                <div class="event-header">
+                    <div style="flex: 1;">
+                        <h1 class="event-title" id="eventTitle">Loading event...</h1>
+                        <div class="event-details">
+                            <div class="event-date" id="eventDate"></div>
+                            <div class="event-notes" id="eventNotes" style="display: none;"></div>
+                            <div class="event-tags" id="eventTags"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="remy-label">Event from Remy</div>
+                
+                <a href="#" id="openButton" class="open-button">Open in Remy</a>
+                
+                <div class="error-message" id="errorMessage">
+                    Remy is not installed. <a href="https://apps.apple.com/app/remy/id6739123456" style="color: #007AFF; text-decoration: underline;">Download from the App Store</a>
+                </div>
+            </div>
+        </div>
+    </div>
     
-    if (!encodedData) {
-        document.getElementById('event-card').innerHTML = '<p>No event data provided</p>';
-    } else {
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const base64Data = urlParams.get('data');
+        
+        if (!base64Data) {
+            document.getElementById('eventTitle').textContent = 'Invalid event link';
+            document.getElementById('openButton').style.display = 'none';
+            document.querySelector('.remy-label').style.display = 'none';
+            return;
+        }
+        
+        // Decode base64 data
+        let eventData;
         try {
-            const decodedString = atob(encodedData);
-            const eventData = JSON.parse(decodedString);
+            const jsonString = atob(base64Data);
+            eventData = JSON.parse(jsonString);
+        } catch (error) {
+            document.getElementById('eventTitle').textContent = 'Error loading event data';
+            document.getElementById('openButton').style.display = 'none';
+            return;
+        }
+        
+        // Display event data
+        function displayEvent() {
+            // Title
+            document.getElementById('eventTitle').textContent = eventData.title || 'Untitled Event';
             
-            document.getElementById('emoji').textContent = eventData.customEmoji || '🎉';
-            document.getElementById('title').textContent = eventData.title;
-            
+            // Date
             const eventDate = new Date(eventData.date);
             const dateFormatter = new Intl.DateTimeFormat('en-US', {
-                weekday: 'long',
-                month: 'short',
+                month: 'medium',
                 day: 'numeric',
                 year: 'numeric'
             });
-            document.getElementById('date').textContent = dateFormatter.format(eventDate);
+            document.getElementById('eventDate').textContent = dateFormatter.format(eventDate);
             
-            const remyLink = `remy://import-event?data=${encodedData}`;
-            document.getElementById('open-remy').href = remyLink;
+            // Notes
+            if (eventData.notes) {
+                document.getElementById('eventNotes').textContent = eventData.notes;
+                document.getElementById('eventNotes').style.display = 'block';
+            }
             
-        } catch (error) {
-            document.getElementById('error').textContent = 'Error loading event: ' + error.message;
+            // Emoji
+            const emoji = eventData.customEmoji || getDefaultEmoji(eventData.type);
+            document.getElementById('emojiBackground').textContent = emoji;
+            
+            // Custom color background
+            if (eventData.customColor) {
+                const card = document.getElementById('eventCard');
+                card.style.background = '#' + eventData.customColor;
+                
+                // Adjust text color based on background brightness
+                const rgb = hexToRgb(eventData.customColor);
+                const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+                if (brightness < 128) {
+                    card.style.color = '#ffffff';
+                    document.getElementById('eventTitle').style.color = '#ffffff';
+                    document.getElementById('eventDate').style.color = 'rgba(255, 255, 255, 0.8)';
+                    if (eventData.notes) {
+                        document.getElementById('eventNotes').style.color = 'rgba(255, 255, 255, 0.8)';
+                    }
+                }
+            }
+            
+            // Hero image
+            if (eventData.heroImageData) {
+                try {
+                    // heroImageData comes as base64 string from JSON encoding
+                    // When Data is encoded to JSON, it becomes a base64 string
+                    let base64Image = eventData.heroImageData;
+                    
+                    // If it's already a string (base64), use it directly
+                    if (typeof base64Image === 'string') {
+                        document.getElementById('heroImage').src = 'data:image/png;base64,' + base64Image;
+                        document.getElementById('heroImage').style.display = 'block';
+                        document.getElementById('emojiBackground').style.display = 'none';
+                    } else if (Array.isArray(base64Image)) {
+                        // If it's an array (byte array), convert to base64
+                        const bytes = new Uint8Array(base64Image);
+                        const binary = bytes.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+                        const base64 = btoa(binary);
+                        document.getElementById('heroImage').src = 'data:image/png;base64,' + base64;
+                        document.getElementById('heroImage').style.display = 'block';
+                        document.getElementById('emojiBackground').style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error loading hero image:', error);
+                    // Fall back to emoji if image fails
+                    document.getElementById('emojiBackground').style.display = 'block';
+                }
+            }
+            
+            // Tags - we only have tagIDs, not tag names, so we'll show a tag indicator
+            // In a full implementation, you could fetch tag names from a service
+            if (eventData.tagIDs && eventData.tagIDs.length > 0) {
+                const tagsContainer = document.getElementById('eventTags');
+                const tagCount = eventData.tagIDs.length;
+                const tagChip = document.createElement('div');
+                tagChip.className = 'tag-chip';
+                tagChip.innerHTML = '<span class="tag-emoji">🏷️</span> ' + tagCount + ' tag' + (tagCount > 1 ? 's' : '');
+                tagsContainer.appendChild(tagChip);
+            }
+            
+            // Add type class for styling
+            if (eventData.type) {
+                document.body.classList.add('event-type-' + eventData.type);
+            }
+            
+            // Update Open Graph meta tags
+            document.getElementById('og-title').content = eventData.title + ' - Event from Remy';
+            document.getElementById('og-description').content = dateFormatter.format(eventDate);
+            if (eventData.heroImageData) {
+                // Set OG image if available
+            }
         }
-    }
-</script>
-
+        
+        function getDefaultEmoji(type) {
+            switch(type) {
+                case 'birthday': return '🎂';
+                case 'annualEvent': return '🎉';
+                default: return '📅';
+            }
+        }
+        
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 255, g: 255, b: 255 };
+        }
+        
+        // Set up "Open in Remy" button
+        document.getElementById('openButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Construct remy:// URL with the same data
+            const remyURL = 'remy://import-event?data=' + encodeURIComponent(base64Data);
+            
+            // Try to open the app
+            window.location.href = remyURL;
+            
+            // If app doesn't open after a short delay, show error
+            setTimeout(function() {
+                document.getElementById('errorMessage').style.display = 'block';
+            }, 1000);
+        });
+        
+        // Display the event
+        displayEvent();
+    </script>
 </body>
 </html>
+
