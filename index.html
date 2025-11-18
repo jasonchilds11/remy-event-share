@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remy Event</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #event-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        #emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            color: #333;
+        }
+        p {
+            margin: 0;
+            color: #666;
+            font-size: 16px;
+        }
+        .subtitle {
+            opacity: 0.7;
+            margin-top: 15px;
+        }
+        .source {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #999;
+        }
+        a {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        a:hover {
+            opacity: 0.9;
+        }
+        #error {
+            color: red;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="event-card">
+    <div id="emoji"></div>
+    <h1 id="title"></h1>
+    <p id="date"></p>
+    <p class="source">Event from Remy</p>
+    <a id="open-remy">Open in Remy</a>
+    <p id="error"></p>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const encodedData = params.get('data');
+    
+    if (!encodedData) {
+        document.getElementById('event-card').innerHTML = '<p>No event data provided</p>';
+    } else {
+        try {
+            const decodedString = atob(encodedData);
+            const eventData = JSON.parse(decodedString);
+            
+            document.getElementById('emoji').textContent = eventData.customEmoji || '🎉';
+            document.getElementById('title').textContent = eventData.title;
+            
+            const eventDate = new Date(eventData.date);
+            const dateFormatter = new Intl.DateTimeFormat('en-US', {
+                weekday: 'long',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            document.getElementById('date').textContent = dateFormatter.format(eventDate);
+            
+            const remyLink = `remy://import-event?data=${encodedData}`;
+            document.getElementById('open-remy').href = remyLink;
+            
+        } catch (error) {
+            document.getElementById('error').textContent = 'Error loading event: ' + error.message;
+        }
+    }
+</script>
+
+</body>
+</html>
